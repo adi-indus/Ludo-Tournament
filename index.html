@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ludo Tournament 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & BASE ─────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:        #0d1117;
+  --surface:   #161b22;
+  --surface2:  #21262d;
+  --border:    rgba(255,255,255,0.08);
+  --text:      #e6edf3;
+  --muted:     #8b949e;
+  --red:       #f85149;
+  --yellow:    #f0b429;
+  --green:     #3fb950;
+  --blue:      #58a6ff;
+  --purple:    #a371f7;
+  --orange:    #fb8500;
+  --gold:      #ffd700;
+  --teal:      #1abc9c;
+  --radius:    14px;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ─── HERO ─────────────────────────────────────── */
+.hero {
+  text-align: center;
+  padding: 52px 20px 44px;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(63,185,80,0.15) 0%, transparent 70%);
+  border-bottom: 1px solid var(--border);
+}
+.ludo-logo { display: inline-block; margin-bottom: 16px; animation: float 3.5s ease-in-out infinite; }
+.ludo-logo svg { display: block; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+.hero-sub { color: var(--muted); font-size: 1rem; margin-top: 6px; font-weight: 500; }
+.hero-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+.hbadge { padding: 6px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; background: var(--surface2); border: 1px solid var(--border); }
+.hbadge.g { border-color: var(--green);  color: var(--green); }
+.hbadge.r { border-color: var(--red);    color: var(--red); }
+.hbadge.p { border-color: var(--purple); color: var(--purple); }
+.hbadge.y { border-color: var(--yellow); color: var(--yellow); }
+
+/* ─── TABS ──────────────────────────────────────── */
+.tabs-wrapper { position: sticky; top: 0; z-index: 100; background: rgba(13,17,23,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tabs { display: flex; max-width: 900px; margin: 0 auto; padding: 0 12px; }
+.tab-btn { flex-shrink: 0; padding: 14px 20px; background: none; border: none; color: var(--muted); font-family: inherit; font-size: 0.88rem; font-weight: 600; cursor: pointer; position: relative; transition: color 0.2s; white-space: nowrap; }
+.tab-btn::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--green); border-radius: 2px 2px 0 0; transform: scaleX(0); transition: transform 0.2s; }
+.tab-btn.active { color: var(--text); }
+.tab-btn.active::after { transform: scaleX(1); }
+.tab-btn:hover { color: var(--text); }
+
+/* ─── PANELS ────────────────────────────────────── */
+.panel { display: none; max-width: 900px; margin: 0 auto; padding: 36px 20px 60px; }
+.panel.active { display: block; }
+
+/* ─── SECTION HEADS ──────────────────────────────── */
+.sec-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; margin-top: 36px; }
+.sec-head:first-child { margin-top: 0; }
+.sec-icon { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; font-size: 1.1rem; flex-shrink: 0; }
+.sec-icon.green  { background: rgba(63,185,80,0.15); }
+.sec-icon.red    { background: rgba(248,81,73,0.15);  }
+.sec-icon.yellow { background: rgba(240,180,41,0.15); }
+.sec-icon.blue   { background: rgba(88,166,255,0.15); }
+.sec-icon.purple { background: rgba(163,113,247,0.15);}
+.sec-icon.gold   { background: rgba(255,215,0,0.15);  }
+.sec-icon.teal   { background: rgba(26,188,156,0.15); }
+.sec-head h2 { font-size: 1.15rem; font-weight: 700; }
+.sec-head p  { font-size: 0.82rem; color: var(--muted); margin-top: 1px; }
+
+/* ─── CALLOUT ────────────────────────────────────── */
+.callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--green); border-radius: var(--radius); padding: 14px 18px; font-size: 0.88rem; color: var(--muted); margin-bottom: 20px; line-height: 1.7; }
+.callout strong { color: var(--text); }
+.callout.red-l    { border-left-color: var(--red); }
+.callout.yellow-l { border-left-color: var(--yellow); }
+.callout.gold-l   { border-left-color: var(--gold); }
+.callout.purple-l { border-left-color: var(--purple); }
+.callout.teal-l   { border-left-color: var(--teal); }
+
+/* ─── CARDS ──────────────────────────────────────── */
+.grid { display: grid; gap: 14px; }
+.grid-4 { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+.grid-2 { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; transition: transform 0.18s; position: relative; overflow: hidden; }
+.card:hover { transform: translateY(-3px); }
+.card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.card.red::before    { background: var(--red); }
+.card.yellow::before { background: var(--yellow); }
+.card.green::before  { background: var(--green); }
+.card.blue::before   { background: var(--blue); }
+.card.purple::before { background: var(--purple); }
+.card.teal::before   { background: var(--teal); }
+.card.gold::before   { background: var(--gold); }
+.card.orange::before { background: var(--orange); }
+.card-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dot-red    { background: var(--red); }
+.dot-yellow { background: var(--yellow); }
+.dot-green  { background: var(--green); }
+.dot-blue   { background: var(--blue); }
+.dot-purple { background: var(--purple); }
+.dot-teal   { background: var(--teal); }
+.dot-orange { background: var(--orange); }
+.dot-gold   { background: var(--gold); }
+
+/* ─── PLAYER LIST ────────────────────────────────── */
+.player-list { list-style: none; }
+.player-list li { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.84rem; color: var(--muted); }
+.player-list li:last-child { border-bottom: none; }
+.player-list li .num { width: 22px; height: 22px; border-radius: 50%; background: var(--surface2); display: grid; place-items: center; font-size: 0.72rem; font-weight: 700; color: var(--muted); flex-shrink: 0; }
+.player-list li .name { color: var(--text); font-weight: 500; flex: 1; }
+
+/* ─── BADGE ──────────────────────────────────────── */
+.badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; flex-shrink: 0; }
+.badge-green  { background: rgba(63,185,80,0.15);   color: var(--green);  border: 1px solid rgba(63,185,80,0.3); }
+.badge-red    { background: rgba(248,81,73,0.15);   color: var(--red);    border: 1px solid rgba(248,81,73,0.3); }
+.badge-yellow { background: rgba(240,180,41,0.15);  color: var(--yellow); border: 1px solid rgba(240,180,41,0.3); }
+.badge-blue   { background: rgba(88,166,255,0.15);  color: var(--blue);   border: 1px solid rgba(88,166,255,0.3); }
+.badge-purple { background: rgba(163,113,247,0.15); color: var(--purple); border: 1px solid rgba(163,113,247,0.3); }
+.badge-gold   { background: rgba(255,215,0,0.15);   color: var(--gold);   border: 1px solid rgba(255,215,0,0.3); }
+.badge-teal   { background: rgba(26,188,156,0.15);  color: var(--teal);   border: 1px solid rgba(26,188,156,0.3); }
+
+/* ─── ADVANCE ROWS ───────────────────────────────── */
+.advance-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; margin-top: 12px; font-size: 0.82rem; }
+.advance-row.win  { background: rgba(63,185,80,0.08);  border: 1px solid rgba(63,185,80,0.2);  color: var(--green); }
+.advance-row.lose { background: rgba(248,81,73,0.08);  border: 1px solid rgba(248,81,73,0.2);  color: var(--red); }
+.advance-row.mid  { background: rgba(240,180,41,0.08); border: 1px solid rgba(240,180,41,0.2); color: var(--yellow); }
+
+/* ─── TABLES ─────────────────────────────────────── */
+.rtable { width: 100%; border-collapse: collapse; font-size: 0.84rem; margin-bottom: 16px; }
+.rtable th { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 600; background: var(--surface2); }
+.rtable th:first-child { border-radius: 8px 0 0 0; }
+.rtable th:last-child  { border-radius: 0 8px 0 0; }
+.rtable td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--muted); background: var(--surface); }
+.rtable td strong { color: var(--text); }
+.rtable tr:last-child td { border-bottom: none; }
+.rtable tr:last-child td:first-child { border-radius: 0 0 0 8px; }
+.rtable tr:last-child td:last-child  { border-radius: 0 0 8px 0; }
+
+/* ─── SPLIT ──────────────────────────────────────── */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media(max-width:600px) { .split { grid-template-columns: 1fr; } }
+
+/* ─── FINAL CARD ─────────────────────────────────── */
+.final-card { background: linear-gradient(135deg, rgba(255,215,0,0.08) 0%, rgba(255,140,0,0.05) 100%); border: 2px solid rgba(255,215,0,0.3); border-radius: var(--radius); padding: 32px 24px; text-align: center; }
+.final-card h2 { font-size: 1.8rem; font-weight: 900; color: var(--gold); margin-bottom: 8px; }
+.final-card p  { color: var(--muted); font-size: 0.9rem; max-width: 480px; margin: 0 auto; line-height: 1.7; }
+.final-players { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
+.fp { padding: 8px 16px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; background: var(--surface); border: 1px solid var(--border); }
+.fp.gold-path   { border-color: rgba(255,215,0,0.4);    color: var(--gold); }
+.fp.second-path { border-color: rgba(63,185,80,0.4);    color: var(--green); }
+
+/* ─── MISC ───────────────────────────────────────── */
+.divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+.text-sm   { font-size: 0.82rem; }
+.text-muted { color: var(--muted); }
+.mt12 { margin-top: 12px; }
+.mt20 { margin-top: 20px; }
+.mb16 { margin-bottom: 16px; }
+.glow-gold { text-shadow: 0 0 24px rgba(255,215,0,0.4); }
+.fade-in { opacity: 0; transform: translateY(16px); transition: opacity 0.4s, transform 0.4s; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+@media(max-width:520px) { .grid-4 { grid-template-columns: 1fr 1fr; } .tab-btn { padding: 12px 12px; font-size: 0.8rem; } }
+
+/* ─── KIDS BANNER ────────────────────────────────── */
+.kids-banner { background: linear-gradient(135deg, rgba(163,113,247,0.1), rgba(163,113,247,0.05)); border: 1px solid rgba(163,113,247,0.25); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px; font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+.kids-banner strong { color: var(--purple); }
+
+/* ─── BOARD CARD SPECIFIC ────────────────────────── */
+.board-num { font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; margin-left: auto; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ HERO ══════════════ -->
+<div class="hero">
+  <div class="ludo-logo">
+    <!-- Ludo Board SVG -->
+    <svg width="170" height="170" viewBox="0 0 210 210" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 12px 32px rgba(0,0,0,0.75))">
+      <!-- Board outer -->
+      <rect width="210" height="210" rx="12" fill="#111"/>
+      <rect x="2" y="2" width="206" height="206" rx="11" fill="#1c1c1c"/>
+
+      <!-- ── 4 COLORED HOME AREAS ── -->
+      <!-- Red (top-left) -->
+      <rect x="4" y="4" width="82" height="82" rx="7" fill="#e82020"/>
+      <!-- Green (top-right) -->
+      <rect x="124" y="4" width="82" height="82" rx="7" fill="#43a843"/>
+      <!-- Blue (bottom-left) -->
+      <rect x="4" y="124" width="82" height="82" rx="7" fill="#1976d2"/>
+      <!-- Yellow (bottom-right) -->
+      <rect x="124" y="124" width="82" height="82" rx="7" fill="#f5c600"/>
+
+      <!-- ── WHITE CROSS PATHS ── -->
+      <rect x="86" y="4"   width="38" height="202" fill="#f0f0f0"/>
+      <rect x="4"  y="86"  width="202" height="38" fill="#f0f0f0"/>
+
+      <!-- ── PATH COLORED COLUMNS (safe squares) ── -->
+      <!-- Red safe column (going right from red home) -->
+      <rect x="4" y="86" width="82" height="38" fill="#f0f0f0"/>
+      <rect x="14" y="92" width="62" height="26" rx="3" fill="#e82020" opacity="0.25"/>
+      <!-- Green safe column (going down from green home) -->
+      <rect x="124" y="86" width="82" height="38" fill="#f0f0f0"/>
+      <rect x="134" y="92" width="62" height="26" rx="3" fill="#43a843" opacity="0.25"/>
+      <!-- Blue safe column (going up from blue home) -->
+      <rect x="86" y="124" width="38" height="82" fill="#f0f0f0"/>
+      <rect x="92" y="134" width="26" height="62" rx="3" fill="#1976d2" opacity="0.25"/>
+      <!-- Yellow safe column (going left from yellow home to center) -->
+      <rect x="86" y="4"  width="38" height="82" fill="#f0f0f0"/>
+      <rect x="92" y="14" width="26" height="62" rx="3" fill="#f5c600" opacity="0.25"/>
+
+      <!-- ── CENTER SQUARE WITH STAR ── -->
+      <rect x="86" y="86" width="38" height="38" fill="#111"/>
+      <!-- 4 colored triangles pointing to center -->
+      <polygon points="86,86 105,105 124,86"  fill="#43a843"/>
+      <polygon points="124,86 105,105 124,124" fill="#f5c600"/>
+      <polygon points="124,124 105,105 86,124" fill="#1976d2"/>
+      <polygon points="86,124 105,105 86,86"  fill="#e82020"/>
+      <circle cx="105" cy="105" r="5" fill="white" opacity="0.7"/>
+
+      <!-- ── TOKEN CIRCLES IN HOMES ── -->
+      <!-- Red home tokens -->
+      <circle cx="28"  cy="28"  r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="62"  cy="28"  r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="28"  cy="62"  r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="62"  cy="62"  r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="28"  cy="28"  r="10" fill="#c01010"/>
+      <circle cx="62"  cy="28"  r="10" fill="#c01010"/>
+      <circle cx="28"  cy="62"  r="10" fill="#c01010"/>
+      <circle cx="62"  cy="62"  r="10" fill="#c01010"/>
+
+      <!-- Green home tokens -->
+      <circle cx="148" cy="28"  r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="182" cy="28"  r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="148" cy="62"  r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="182" cy="62"  r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="148" cy="28"  r="10" fill="#2d7a2d"/>
+      <circle cx="182" cy="28"  r="10" fill="#2d7a2d"/>
+      <circle cx="148" cy="62"  r="10" fill="#2d7a2d"/>
+      <circle cx="182" cy="62"  r="10" fill="#2d7a2d"/>
+
+      <!-- Blue home tokens -->
+      <circle cx="28"  cy="148" r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="62"  cy="148" r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="28"  cy="182" r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="62"  cy="182" r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="28"  cy="148" r="10" fill="#0d4fa0"/>
+      <circle cx="62"  cy="148" r="10" fill="#0d4fa0"/>
+      <circle cx="28"  cy="182" r="10" fill="#0d4fa0"/>
+      <circle cx="62"  cy="182" r="10" fill="#0d4fa0"/>
+
+      <!-- Yellow home tokens -->
+      <circle cx="148" cy="148" r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="182" cy="148" r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="148" cy="182" r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="182" cy="182" r="13" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="148" cy="148" r="10" fill="#c9a000"/>
+      <circle cx="182" cy="148" r="10" fill="#c9a000"/>
+      <circle cx="148" cy="182" r="10" fill="#c9a000"/>
+      <circle cx="182" cy="182" r="10" fill="#c9a000"/>
+
+      <!-- Board border glow -->
+      <rect x="2" y="2" width="206" height="206" rx="11" fill="none" stroke="rgba(63,185,80,0.3)" stroke-width="2"/>
+    </svg>
+  </div>
+
+  <p class="hero-sub">Ludo Tournament · Double-Elimination Format · Fun for everyone!</p>
+  <div class="hero-badges">
+    <span class="hbadge g">36 Players</span>
+    <span class="hbadge g">31 Adults · 8 Boards</span>
+    <span class="hbadge p">5 Kids (Separate)</span>
+    <span class="hbadge y">1 Ludo Champion 🏆</span>
+  </div>
+</div>
+
+<!-- ══════════════ TABS ══════════════ -->
+<div class="tabs-wrapper">
+  <nav class="tabs">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">🗺️ Overview</button>
+    <button class="tab-btn" onclick="switchTab('kids',this)">👧 Kids</button>
+    <button class="tab-btn" onclick="switchTab('round1',this)">🎲 Round 1 — Boards</button>
+    <button class="tab-btn" onclick="switchTab('round2',this)">🔄 Round 2</button>
+    <button class="tab-btn" onclick="switchTab('final',this)">🏆 Final</button>
+  </nav>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!--  OVERVIEW                                      -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-overview" class="panel active">
+
+  <div class="sec-head">
+    <div class="sec-icon green">🗺️</div>
+    <div><h2>How the Tournament Works</h2><p>3-round knockout for adults · 2-round format for kids</p></div>
+  </div>
+
+  <div class="callout gold-l">
+    🎲 <strong>Ludo boards have 4 players each.</strong> Each game is played to completion. Rankings within each board determine who advances. Top 2 advance in Round 1 — only the winner advances from Round 2 onwards.
+  </div>
+
+  <!-- Adults path -->
+  <div class="sec-head" style="margin-top:24px;">
+    <div class="sec-icon green">🧑 Adults Path</div>
+  </div>
+
+  <div class="split mb16">
+    <div class="card green">
+      <div class="card-title"><div class="dot dot-green"></div>Round 1 → Round 2 → Final</div>
+      <ul class="player-list">
+        <li><span class="num">1</span><span class="name">Round 1 — 8 Boards (31 players)</span></li>
+        <li><span class="num">2</span><span class="name">Round 2 — 4 Boards of 4</span></li>
+        <li><span class="num">3</span><span class="name">🏆 Final — 4 players, 1 board</span></li>
+      </ul>
+      <div class="advance-row win mt12">✅ Top 2 per board advance in R1</div>
+      <div class="advance-row win" style="margin-top:6px">✅ Only winner advances R2 onwards</div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--muted);">
+      <div class="card-title"><div class="dot" style="background:var(--muted)"></div>How elimination works</div>
+      <ul class="player-list">
+        <li><span class="num">R1</span><span class="name">3rd & 4th place → Eliminated</span></li>
+        <li><span class="num">R2</span><span class="name">2nd, 3rd, 4th → Eliminated</span></li>
+        <li><span class="num">F</span><span class="name">2nd, 3rd, 4th → Runners-up</span></li>
+      </ul>
+      <div class="advance-row lose mt12">❌ Losers are eliminated same round</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="sec-head">
+    <div class="sec-icon yellow">📊</div>
+    <div><h2>Round-by-Round Summary</h2><p>Adults · 31 players</p></div>
+  </div>
+
+  <table class="rtable">
+    <thead>
+      <tr><th>Round</th><th>Boards</th><th>Players</th><th>Who Advances</th><th>Eliminated</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Round 1</strong><br><span class="text-sm text-muted">Group Stage</span></td>
+        <td>8 boards<br><span class="text-sm text-muted">7×4 + 1×3</span></td>
+        <td><strong>31</strong></td>
+        <td><span class="badge badge-green">16 → Round 2</span></td>
+        <td>15 players</td>
+      </tr>
+      <tr>
+        <td><strong>Round 2</strong></td>
+        <td>4 boards<br><span class="text-sm text-muted">4×4</span></td>
+        <td><strong>16</strong></td>
+        <td><span class="badge badge-yellow">4 → Final</span></td>
+        <td>12 players</td>
+      </tr>
+      <tr>
+        <td><strong>🏆 Final</strong></td>
+        <td>1 board</td>
+        <td><strong>4</strong></td>
+        <td><span class="badge badge-gold">🥇 Champion!</span></td>
+        <td>3 players</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!--  KIDS                                          -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-kids" class="panel">
+
+  <div class="sec-head">
+    <div class="sec-icon purple">👧</div>
+    <div><h2>Kids Tournament</h2><p>5 kids · 2 boards in Round 1 · Final of 3</p></div>
+  </div>
+
+  <div class="kids-banner">
+    🎲 Kids play their own <strong>completely separate tournament</strong>. Round 1 splits into 2 boards. The <strong>top 2 from the 3-player board</strong> and the <strong>winner of the 2-player board</strong> meet in the Kids Final — 3 players compete for the title!
+  </div>
+
+  <div class="sec-head">
+    <div class="sec-icon purple">1️⃣</div>
+    <div><h2>Round 1 — Two Boards</h2><p>Both boards play simultaneously</p></div>
+  </div>
+
+  <div class="split">
+    <div class="card purple">
+      <div class="card-title"><div class="dot dot-purple"></div>Kids Board K1 <span class="badge badge-purple" style="margin-left:auto">3 players</span></div>
+      <ul class="player-list">
+        <li><span class="num">1</span><span class="name">Saavi Khairnar</span></li>
+        <li><span class="num">2</span><span class="name">Advay B.</span></li>
+        <li><span class="num">3</span><span class="name">Yashvi Khairnar</span></li>
+      </ul>
+      <div class="advance-row win mt12">✅ 1st & 2nd → Kids Final</div>
+      <div class="advance-row lose" style="margin-top:6px">3rd → Eliminated</div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title"><div class="dot dot-purple"></div>Kids Board K2 <span class="badge badge-purple" style="margin-left:auto">2 players</span></div>
+      <ul class="player-list">
+        <li><span class="num">1</span><span class="name">Ansha Toshniwal</span></li>
+        <li><span class="num">2</span><span class="name">Dhrihan Pandya</span></li>
+      </ul>
+      <div class="advance-row win mt12">✅ Winner → Kids Final</div>
+      <div class="advance-row lose" style="margin-top:6px">Runner-up → Eliminated</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="sec-head">
+    <div class="sec-icon purple">🏆</div>
+    <div><h2>Kids Final — 3 Players</h2><p>K1 top 2 + K2 winner on one board</p></div>
+  </div>
+
+  <div class="card purple" style="max-width:380px;">
+    <div class="card-title"><div class="dot dot-purple"></div>👑 Kids Final Board</div>
+    <ul class="player-list">
+      <li><span class="num badge badge-purple" style="width:auto;padding:2px 6px">K1</span><span class="name">Board K1 — 1st place</span></li>
+      <li><span class="num badge badge-purple" style="width:auto;padding:2px 6px">K1</span><span class="name">Board K1 — 2nd place</span></li>
+      <li><span class="num badge badge-purple" style="width:auto;padding:2px 6px">K2</span><span class="name">Board K2 — Winner</span></li>
+    </ul>
+    <div class="advance-row win mt12">🏆 Winner = Kids Ludo Champion!</div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!--  ROUND 1                                       -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-round1" class="panel">
+
+  <div class="sec-head">
+    <div class="sec-icon red">🎲</div>
+    <div><h2>Round 1 — Group Stage</h2><p>31 adults · 8 boards · all play simultaneously</p></div>
+  </div>
+
+  <div class="callout">
+    <strong>All 8 boards play at the same time.</strong> Top 2 players from each board advance to Round 2. 3rd and 4th place are eliminated. Board 8 has 3 players — top 2 still advance, 3rd is eliminated.
+  </div>
+  <div class="callout red-l">
+    🔀 <strong>Families are split across different boards</strong> to keep things fair and fun. Thales, Khairnars, Naiks and Anands are all on separate boards.
+  </div>
+
+  <div class="grid grid-4">
+
+    <div class="card red">
+      <div class="card-title"><div class="dot dot-red"></div>Board 1 <span class="badge badge-red" style="margin-left:auto">4 players</span></div>
+      <ul class="player-list">
+        <li><span class="num">1</span><span class="name">Mit Kapadia</span></li>
+        <li><span class="num">2</span><span class="name">Seema Thale</span></li>
+        <li><span class="num">3</span><span class="name">Mangesh</span></li>
+        <li><span class="num">4</span><span class="name">Sneh Anand (Sr.)</span></li>
+      </ul>
+      <div class="advance-row win mt12">Top 2 → Round 2</div>
+    </div>
+
+    <div class="card yellow">
+      <div class="card-title"><div class="dot dot-yellow"></div>Board 2 <span class="badge badge-yellow" style="margin-left:auto">4 players</span></div>
+      <ul class="player-list">
+        <li><span class="num">1</span><span class="name">Shashank Thale</span></li>
+        <li><span class="num">2</span><span class="name">Abhijit V.</span></li>
+        <li><span class="num">3</span><span class="name">Harshada</span></li>
+        <li><span class="num">4</span><span class="name">Brijbhushan Anand (Sr.)</span></li>
+      </ul>
+      <div class="advance-row win mt12">Top 2 → Round 2</div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title"><div class="dot dot-green"></div>Board 3 <span class="badge badge-green" style="margin-left:auto">4 players</span></div>
+      <ul class="player-list">
+        <li><span class="num">1</span><span class="name">Shriya Thale</span></li>
+        <li><span class="num">2</span><span class="name">Mehak</span></li>
+        <li><span class="num">3</span><span class="name">Akash Jauhari</span></li>
+        <li><span class="num">4</span><span class="name">Sumita B.</span></li>
+      </ul>
+      <div class="advance-row win mt12">Top 2 → Round 2</div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-title"><div class="dot dot-blue"></div>Board 4 <span class="badge badge-blue" style="margin-left:auto">4 players</span></div>
+      <ul class="player-list">
+        <li><span class="num">1</span><span class="name">Rishi A.</span></li>
+        <li><span class="num">2</span><span class="name">Ankit</span></li>
+        <li><span class="num">3</span><span class="name">Anchal Khare</span></li>
+        <li><span class="num">4</span><span class="name">Swati Banerjee</span></li>
+      </ul>
+      <div class="advance-row win mt12">Top 2 → Round 2</div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title"><div class="dot dot-orange"></div>Board 5 <span class="badge badge-yellow" style="margin-left:auto">4 players</span></div>
+      <ul class="player-list">
+        <li><span class="num">1</span><span class="name">Deepak M.</span></li>
+        <li><span class="num">2</span><span class="name">Gunjan Sahu</span></li>
+        <li><span class="num">3</span><span class="name">Pradnya Khairnar</span></li>
+        <li><span class="num">4</span><span class="name">Sagar Naik</span></li>
+      </ul>
+      <div class="advance-row win mt12">Top 2 → Round 2</div>
+    </div>
+
+    <div class="card teal">
+      <div class="card-title"><div class="dot dot-teal"></div>Board 6 <span class="badge badge-teal" style="margin-left:auto">4 players</span></div>
+      <ul class="player-list">
+        <li><span class="num">1</span><span class="name">Anu M.</span></li>
+        <li><span class="num">2</span><span class="name">Yatin Khairnar</span></li>
+        <li><span class="num">3</span><span class="name">Pooja Jadhav</span></li>
+        <li><span class="num">4</span><span class="name">Shama Naik</span></li>
+      </ul>
+      <div class="advance-row win mt12">Top 2 → Round 2</div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title"><div class="dot dot-purple"></div>Board 7 <span class="badge badge-purple" style="margin-left:auto">4 players</span></div>
+      <ul class="player-list">
+        <li><span class="num">1</span><span class="name">Alka Suman</span></li>
+        <li><span class="num">2</span><span class="name">Ganesh Lokare</span></li>
+        <li><span class="num">3</span><span class="name">Namita Arya</span></li>
+        <li><span class="num">4</span><span class="name">Venkatesh P. (Sr)</span></li>
+      </ul>
+      <div class="advance-row win mt12">Top 2 → Round 2</div>
+    </div>
+
+    <div class="card" style="border-top:3px solid var(--muted);">
+      <div class="card-title"><div class="dot" style="background:var(--muted)"></div>Board 8 <span class="badge badge-yellow" style="margin-left:auto">3 players</span></div>
+      <ul class="player-list">
+        <li><span class="num">1</span><span class="name">Sujal</span></li>
+        <li><span class="num">2</span><span class="name">Satyaji</span></li>
+        <li><span class="num">3</span><span class="name">Chitra Pakhale</span></li>
+      </ul>
+      <div class="advance-row win mt12">Top 2 → Round 2</div>
+    </div>
+
+  </div><!-- /grid -->
+
+  <hr class="divider">
+
+  <div class="callout">
+    <strong>After Round 1:</strong> 16 players advance (top 2 from each of the 8 boards). 15 players are eliminated. The 16 winners are reseeded into <strong>4 fresh boards of 4</strong> for Round 2 — mixing players from different R1 boards.
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!--  ROUND 2                                       -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-round2" class="panel">
+
+  <div class="sec-head">
+    <div class="sec-icon yellow">🔄</div>
+    <div><h2>Round 2</h2><p>16 players · 4 boards of 4 · only the winner advances</p></div>
+  </div>
+
+  <div class="callout yellow-l">
+    <strong>One winner per board.</strong> 16 players are reshuffled into 4 new boards of 4 — you'll face opponents you haven't played yet. Only the <strong>1st place finisher</strong> from each board goes through to the Final. 2nd, 3rd, 4th are eliminated.
+  </div>
+
+  <div class="grid grid-4">
+
+    <div class="card yellow">
+      <div class="card-title"><div class="dot dot-yellow"></div>Board W1</div>
+      <ul class="player-list">
+        <li><span class="num badge badge-red" style="width:auto;padding:2px 6px">B1</span><span class="name">Board 1 — 1st place</span></li>
+        <li><span class="num badge badge-yellow" style="width:auto;padding:2px 6px">B2</span><span class="name">Board 2 — 2nd place</span></li>
+        <li><span class="num badge badge-orange" style="width:auto;padding:2px 6px;background:rgba(251,133,0,0.15);color:#fb8500;border:1px solid rgba(251,133,0,0.3)">B5</span><span class="name">Board 5 — 1st place</span></li>
+        <li><span class="num badge badge-teal" style="width:auto;padding:2px 6px">B6</span><span class="name">Board 6 — 2nd place</span></li>
+      </ul>
+      <div class="advance-row win mt12">🥇 Winner → Final</div>
+      <div class="advance-row lose" style="margin-top:6px">2nd–4th → Eliminated</div>
+    </div>
+
+    <div class="card yellow">
+      <div class="card-title"><div class="dot dot-yellow"></div>Board W2</div>
+      <ul class="player-list">
+        <li><span class="num badge badge-red" style="width:auto;padding:2px 6px">B1</span><span class="name">Board 1 — 2nd place</span></li>
+        <li><span class="num badge badge-yellow" style="width:auto;padding:2px 6px">B2</span><span class="name">Board 2 — 1st place</span></li>
+        <li><span class="num badge badge-orange" style="width:auto;padding:2px 6px;background:rgba(251,133,0,0.15);color:#fb8500;border:1px solid rgba(251,133,0,0.3)">B5</span><span class="name">Board 5 — 2nd place</span></li>
+        <li><span class="num badge badge-teal" style="width:auto;padding:2px 6px">B6</span><span class="name">Board 6 — 1st place</span></li>
+      </ul>
+      <div class="advance-row win mt12">🥇 Winner → Final</div>
+      <div class="advance-row lose" style="margin-top:6px">2nd–4th → Eliminated</div>
+    </div>
+
+    <div class="card yellow">
+      <div class="card-title"><div class="dot dot-yellow"></div>Board W3</div>
+      <ul class="player-list">
+        <li><span class="num badge badge-green" style="width:auto;padding:2px 6px">B3</span><span class="name">Board 3 — 1st place</span></li>
+        <li><span class="num badge badge-blue" style="width:auto;padding:2px 6px">B4</span><span class="name">Board 4 — 2nd place</span></li>
+        <li><span class="num badge badge-purple" style="width:auto;padding:2px 6px">B7</span><span class="name">Board 7 — 1st place</span></li>
+        <li><span class="num" style="background:var(--surface2);color:var(--muted)">B8</span><span class="name">Board 8 — 2nd place</span></li>
+      </ul>
+      <div class="advance-row win mt12">🥇 Winner → Final</div>
+      <div class="advance-row lose" style="margin-top:6px">2nd–4th → Eliminated</div>
+    </div>
+
+    <div class="card yellow">
+      <div class="card-title"><div class="dot dot-yellow"></div>Board W4</div>
+      <ul class="player-list">
+        <li><span class="num badge badge-green" style="width:auto;padding:2px 6px">B3</span><span class="name">Board 3 — 2nd place</span></li>
+        <li><span class="num badge badge-blue" style="width:auto;padding:2px 6px">B4</span><span class="name">Board 4 — 1st place</span></li>
+        <li><span class="num badge badge-purple" style="width:auto;padding:2px 6px">B7</span><span class="name">Board 7 — 2nd place</span></li>
+        <li><span class="num" style="background:var(--surface2);color:var(--muted)">B8</span><span class="name">Board 8 — 1st place</span></li>
+      </ul>
+      <div class="advance-row win mt12">🥇 Winner → Final</div>
+      <div class="advance-row lose" style="margin-top:6px">2nd–4th → Eliminated</div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!--  FINAL                                         -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="tab-final" class="panel">
+
+  <div class="sec-head">
+    <div class="sec-icon gold">🏆</div>
+    <div><h2>The Grand Final</h2><p>4 players · 1 board · 1 champion</p></div>
+  </div>
+
+  <div class="final-card">
+    <h2 class="glow-gold">🏆 Grand Final</h2>
+    <p>The 4 board winners from Round 2 face off on one final Ludo board.</p>
+    <div class="final-players" style="margin-top:20px">
+      <div class="fp gold-path">🥇 Board W1 — Winner</div>
+      <div class="fp gold-path">🥇 Board W2 — Winner</div>
+      <div class="fp gold-path">🥇 Board W3 — Winner</div>
+      <div class="fp gold-path">🥇 Board W4 — Winner</div>
+    </div>
+    <p><strong style="color:var(--gold); font-size:1.1em">The winner of this board is crowned the 🎲 Ludo Champion!</strong></p>
+  </div>
+
+  <hr class="divider">
+
+  <div class="sec-head">
+    <div class="sec-icon green">✅</div>
+    <div><h2>Everyone's Round Count</h2></div>
+  </div>
+
+  <table class="rtable">
+    <thead><tr><th>Who</th><th>Rounds Played</th><th>Path</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Eliminated in Round 1</strong></td>
+        <td><span class="badge badge-green">1 round</span></td>
+        <td>3rd / 4th in their R1 board</td>
+      </tr>
+      <tr>
+        <td><strong>Eliminated in Round 2</strong></td>
+        <td><span class="badge badge-blue">2 rounds ✅</span></td>
+        <td>2nd–4th in their R2 board</td>
+      </tr>
+      <tr>
+        <td><strong>Grand Finalists (not champion)</strong></td>
+        <td><span class="badge badge-gold">3 rounds ✅</span></td>
+        <td>Played all the way to Final</td>
+      </tr>
+      <tr>
+        <td><strong>🏆 Champion</strong></td>
+        <td><span class="badge badge-gold">3 rounds 👑</span></td>
+        <td>Won every single game!</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<!-- ── FOOTER ── -->
+<footer style="text-align:center;padding:28px 20px;border-top:1px solid var(--border);color:var(--muted);font-size:0.78rem;margin-top:20px;">
+  🎲 Ludo Tournament 2026 · 36 Players · Have fun everyone! 🎉
+</footer>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  btn.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+}
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.card, .callout, .final-card').forEach(el => {
+  el.classList.add('fade-in');
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
